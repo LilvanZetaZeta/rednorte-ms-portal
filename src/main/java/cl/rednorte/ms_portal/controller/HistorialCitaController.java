@@ -1,16 +1,22 @@
 package cl.rednorte.ms_portal.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import cl.rednorte.ms_portal.dto.HistorialCitaRequest;
 import cl.rednorte.ms_portal.entity.HistorialCita;
 import cl.rednorte.ms_portal.entity.HistorialCita.EstadoHistorico;
 import cl.rednorte.ms_portal.service.HistorialCitaService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/historial-citas")
@@ -29,13 +35,13 @@ public class HistorialCitaController {
         return ResponseEntity.ok(historialCitaService.obtenerPorId(id));
     }
 
-    // RF.2 Historial completo del paciente
+    // Historial completo del paciente
     @GetMapping("/paciente/{pacienteId}")
     public ResponseEntity<List<HistorialCita>> obtenerHistorialPaciente(@PathVariable Long pacienteId) {
         return ResponseEntity.ok(historialCitaService.obtenerHistorialPaciente(pacienteId));
     }
 
-    // RF.1 Consulta de estado: solo finalizadas
+    // Consulta de estado: solo finalizadas
     @GetMapping("/paciente/{pacienteId}/finalizadas")
     public ResponseEntity<List<HistorialCita>> obtenerFinalizadas(@PathVariable Long pacienteId) {
         return ResponseEntity.ok(
@@ -43,7 +49,7 @@ public class HistorialCitaController {
         );
     }
 
-    // RF.1 Consulta de estado: solo canceladas
+    // Consulta de estado: solo canceladas
     @GetMapping("/paciente/{pacienteId}/canceladas")
     public ResponseEntity<List<HistorialCita>> obtenerCanceladas(@PathVariable Long pacienteId) {
         return ResponseEntity.ok(
