@@ -64,7 +64,7 @@ public class PerfilPacienteController {
         }
     }
 
-    // RF.3 Gestión Perfil: actualizar info de contacto
+    // Gestión Perfil: actualizar info de contacto
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody PerfilPacienteRequest req) {
         try {

@@ -18,7 +18,6 @@ public class PerfilPacienteService {
     @Autowired
     private UsuarioViewRepository usuarioViewRepository;
 
-    // Agregar método:
     public PerfilPaciente obtenerPorIdAuth(String idAuth) {
         UsuarioView usuario = usuarioViewRepository.findByIdAuth(idAuth)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + idAuth));
