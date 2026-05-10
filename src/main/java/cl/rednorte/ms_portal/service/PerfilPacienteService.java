@@ -1,16 +1,32 @@
 package cl.rednorte.ms_portal.service;
 
-import cl.rednorte.ms_portal.dto.PerfilPacienteRequest;
-import cl.rednorte.ms_portal.entity.PerfilPaciente;
-import cl.rednorte.ms_portal.repository.PerfilPacienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import cl.rednorte.ms_portal.dto.PerfilPacienteRequest;
+import cl.rednorte.ms_portal.entity.PerfilPaciente;
+import cl.rednorte.ms_portal.entity.readonly.UsuarioView;
+import cl.rednorte.ms_portal.repository.PerfilPacienteRepository;
+import cl.rednorte.ms_portal.repository.readonly.UsuarioViewRepository;
 
 @Service
 public class PerfilPacienteService {
 
     @Autowired
     private PerfilPacienteRepository perfilPacienteRepository;
+    
+    @Autowired
+    private UsuarioViewRepository usuarioViewRepository;
+
+    // Agregar método:
+    public PerfilPaciente obtenerPorIdAuth(String idAuth) {
+        UsuarioView usuario = usuarioViewRepository.findByIdAuth(idAuth)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + idAuth));
+
+        return perfilPacienteRepository.findByPacienteId(usuario.getId())
+                .orElseThrow(() -> new RuntimeException("Perfil no encontrado para: " + idAuth));
+    }
+    
 
     public PerfilPaciente crear(PerfilPacienteRequest req) {
         if (perfilPacienteRepository.existsByPacienteId(req.getPacienteId())) {
@@ -32,6 +48,7 @@ public class PerfilPacienteService {
         return perfilPacienteRepository.findByPacienteId(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Perfil no encontrado para el paciente: " + pacienteId));
     }
+    
 
     public PerfilPaciente actualizar(Long id, PerfilPacienteRequest req) {
         return perfilPacienteRepository.findById(id).map(perfil -> {
@@ -47,3 +64,5 @@ public class PerfilPacienteService {
         perfilPacienteRepository.deleteById(id);
     }
 }
+
+
