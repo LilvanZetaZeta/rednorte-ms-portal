@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cl.rednorte.ms_portal.entity.readonly.CentroMedicoView;
+import cl.rednorte.ms_portal.entity.readonly.EspecialidadView;
 import cl.rednorte.ms_portal.repository.readonly.CentroMedicoViewRepository;
+import cl.rednorte.ms_portal.repository.readonly.EspecialidadViewRepository;
 
 @RestController
 @RequestMapping("/api/centros-medicos")
@@ -18,6 +20,9 @@ public class CentroMedicoViewController {
 
     @Autowired
     private CentroMedicoViewRepository centroRepo;
+
+    @Autowired
+    private EspecialidadViewRepository especialidadRepo;
 
     @GetMapping
     public ResponseEntity<List<CentroMedicoView>> listar() {
@@ -29,5 +34,10 @@ public class CentroMedicoViewController {
         return centroRepo.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/especialidades")
+    public ResponseEntity<List<EspecialidadView>> getEspecialidades(@PathVariable Long id) {
+        return ResponseEntity.ok(especialidadRepo.findByCentroId(id));
     }
 }
