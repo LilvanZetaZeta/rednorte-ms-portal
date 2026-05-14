@@ -28,11 +28,16 @@ public class UsuarioViewController {
     }
 
     @GetMapping("/medicos/buscar")
-    public ResponseEntity<List<UsuarioView>> buscarMedicosPorEspecialidad(
-            @RequestParam String especialidad) {
-        return ResponseEntity.ok(
-            usuarioRepo.findMedicosByEspecialidadNombre(especialidad)
-        );
+    public ResponseEntity<List<UsuarioView>> buscarMedicos(
+            @RequestParam(required = false) String especialidad,
+            @RequestParam(required = false) Long centroId,
+            @RequestParam(required = false) Long especialidadId) {
+        
+        if (centroId != null && especialidadId != null) {
+            return ResponseEntity.ok(usuarioRepo.findMedicosByCentroAndEspecialidad(centroId, especialidadId));
+        }
+        
+        return ResponseEntity.ok(usuarioRepo.findMedicosByEspecialidadNombre(especialidad));
     }
 
     @GetMapping("/auth/{idAuth}")
