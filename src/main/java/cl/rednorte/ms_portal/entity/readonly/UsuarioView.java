@@ -6,10 +6,10 @@ import org.hibernate.annotations.Immutable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import cl.rednorte.ms_portal.config.RolUsuarioConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -41,7 +41,9 @@ public class UsuarioView {
     @Column(name = "correo", insertable = false, updatable = false)
     private String correo;
 
-    @Enumerated(EnumType.STRING)
+    // Reemplaza @Enumerated + columnDefinition por el converter
+    // que hace toUpperCase() al leer y toLowerCase() al escribir
+    @Convert(converter = RolUsuarioConverter.class)
     @Column(name = "rol", insertable = false, updatable = false, columnDefinition = "rol_usuario")
     private RolUsuario rol;
 
@@ -51,11 +53,14 @@ public class UsuarioView {
     private CentroMedicoView centroMedico;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "usuario_especialidad", joinColumns = @JoinColumn(name = "usuario_id", insertable = false, updatable = false), inverseJoinColumns = @JoinColumn(name = "especialidad_id", insertable = false, updatable = false))
+    @JoinTable(
+        name = "usuario_especialidad",
+        joinColumns = @JoinColumn(name = "usuario_id", insertable = false, updatable = false),
+        inverseJoinColumns = @JoinColumn(name = "especialidad_id", insertable = false, updatable = false)
+    )
     private List<EspecialidadView> especialidades;
 
-    protected UsuarioView() {
-    }
+    protected UsuarioView() {}
 
     public enum RolUsuario {
         PACIENTE, MEDICO, ADMINISTRATIVO, DIRECTOR, SECRETARIA

@@ -33,6 +33,16 @@ public interface UsuarioViewRepository extends Repository<UsuarioView, Long> {
             "AND LOWER(e.nombre) = LOWER(:especialidad)", nativeQuery = true)
     List<UsuarioView> findMedicosByEspecialidadNombre(@Param("especialidad") String especialidad);
 
+    
+    @Query(value = "SELECT DISTINCT u.* FROM usuario u " +
+            "JOIN usuario_especialidad ue ON ue.usuario_id = u.id " +
+            "WHERE CAST(u.rol AS text) = 'MEDICO' " +
+            "AND u.centro_medico_id = :centroId " +
+            "AND ue.especialidad_id = :especialidadId", nativeQuery = true)
+    List<UsuarioView> findMedicosByCentroAndEspecialidad(
+            @Param("centroId") Long centroId, 
+            @Param("especialidadId") Long especialidadId);
+
     @Query(value = "SELECT count(*) FROM usuario WHERE CAST(rol AS text) = :rol", nativeQuery = true)
     long countByRolNative(@Param("rol") String rol);
 }

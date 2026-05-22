@@ -20,6 +20,11 @@ public class UsuarioViewController {
     @Autowired
     private UsuarioViewRepository usuarioRepo;
 
+    @GetMapping("/todos")
+    public ResponseEntity<List<UsuarioView>> getTodos() {
+        return ResponseEntity.ok(usuarioRepo.findAll());
+    }
+
     @GetMapping("/staff")
     public ResponseEntity<List<UsuarioView>> getStaff() {
         return ResponseEntity.ok(
@@ -28,11 +33,23 @@ public class UsuarioViewController {
     }
 
     @GetMapping("/medicos/buscar")
-    public ResponseEntity<List<UsuarioView>> buscarMedicosPorEspecialidad(
-            @RequestParam String especialidad) {
-        return ResponseEntity.ok(
-            usuarioRepo.findMedicosByEspecialidadNombre(especialidad)
-        );
+    public ResponseEntity<List<UsuarioView>> buscarMedicos(
+            @RequestParam(required = false) String especialidad,
+            @RequestParam(required = false) Long centroId,
+            @RequestParam(required = false) Long especialidadId) {
+
+        // Validar si vienen ambos IDs para la búsqueda cruzada
+        if (centroId != null && especialidadId != null) {
+            return ResponseEntity.ok(usuarioRepo.findMedicosByCentroAndEspecialidad(centroId, especialidadId));
+        }
+
+        // Validar si viene el nombre de la especialidad
+        if (especialidad != null && !especialidad.trim().isEmpty()) {
+            return ResponseEntity.ok(usuarioRepo.findMedicosByEspecialidadNombre(especialidad));
+        }
+
+        // Si el usuario no mandó parámetros válidos, rechazar la solicitud en lugar de mandar nulls a la BD
+        return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/auth/{idAuth}")
