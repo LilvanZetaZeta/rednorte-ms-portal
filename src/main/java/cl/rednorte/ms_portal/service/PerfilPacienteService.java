@@ -28,11 +28,25 @@ public class PerfilPacienteService {
     
 
     public PerfilPaciente crear(PerfilPacienteRequest req) {
-        if (perfilPacienteRepository.existsByPacienteId(req.getPacienteId())) {
+        Long pacienteId = req.getPacienteId();
+        
+        // Si no viene pacienteId, lo buscamos por idAuth
+        if (pacienteId == null && req.getIdAuth() != null) {
+            UsuarioView usuario = usuarioViewRepository.findByIdAuth(req.getIdAuth())
+                    .orElseThrow(() -> new RuntimeException("No se encontró el usuario para el idAuth: " + req.getIdAuth()));
+            pacienteId = usuario.getId();
+        }
+
+        if (pacienteId == null) {
+            throw new RuntimeException("Se requiere pacienteId o idAuth para crear el perfil.");
+        }
+
+        if (perfilPacienteRepository.existsByPacienteId(pacienteId)) {
             throw new RuntimeException("El paciente ya tiene un perfil registrado en el portal.");
         }
+        
         PerfilPaciente perfil = new PerfilPaciente();
-        perfil.setPacienteId(req.getPacienteId());
+        perfil.setPacienteId(pacienteId);
         perfil.setPrevision(req.getPrevision());
         perfil.setTelefonoContacto(req.getTelefonoContacto());
         return perfilPacienteRepository.save(perfil);
@@ -63,5 +77,3 @@ public class PerfilPacienteService {
         perfilPacienteRepository.deleteById(id);
     }
 }
-
-
