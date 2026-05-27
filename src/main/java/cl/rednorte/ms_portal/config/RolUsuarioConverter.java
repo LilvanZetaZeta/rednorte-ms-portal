@@ -4,25 +4,22 @@ import cl.rednorte.ms_portal.entity.readonly.UsuarioView;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-
-@Converter
+@Converter(autoApply = true)
 public class RolUsuarioConverter implements AttributeConverter<UsuarioView.RolUsuario, String> {
 
     @Override
     public String convertToDatabaseColumn(UsuarioView.RolUsuario attribute) {
-        return attribute == null ? null : attribute.name().toLowerCase();
+        if (attribute == null) {
+            return null;
+        }
+        return attribute.name();
     }
 
     @Override
     public UsuarioView.RolUsuario convertToEntityAttribute(String dbData) {
-        if (dbData == null) return null;
-        try {
-            return UsuarioView.RolUsuario.valueOf(dbData.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                "Valor desconocido en columna rol_usuario: '" + dbData + "'. " +
-                "Valores válidos: PACIENTE, MEDICO, ADMINISTRATIVO, DIRECTOR, SECRETARIA"
-            );
+        if (dbData == null || dbData.trim().isEmpty()) {
+            return null;
         }
+        return UsuarioView.RolUsuario.valueOf(dbData.toUpperCase());
     }
 }

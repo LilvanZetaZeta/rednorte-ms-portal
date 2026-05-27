@@ -1,37 +1,21 @@
 package cl.rednorte.ms_portal.repository.readonly;
 
-import java.util.List;
-import java.util.Optional;
-
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Repository;
 import cl.rednorte.ms_portal.entity.readonly.ReservaView;
+import cl.rednorte.ms_portal.dto.CentroMetricaDTO;
+import java.util.List;
 
-@Component
-public interface ReservaViewRepository extends Repository<ReservaView, Long> {
-
-    Optional<ReservaView> findById(Long id);
-
-    List<ReservaView> findAll();
-
-    long count();
-
-    List<ReservaView> findByPacienteId(Long pacienteId);
-
+@Repository
+public interface ReservaViewRepository extends JpaRepository<ReservaView, Long> {
     List<ReservaView> findByPaciente_IdAuth(String idAuth);
-
-    List<ReservaView> findByMedicoId(Long medicoId);
-
-    List<ReservaView> findByMedico_IdAuth(String idAuth);
-
     List<ReservaView> findByCentroId(Long centroId);
+    List<ReservaView> findByMedicoId(Long medicoId);
+    long countByEstado(ReservaView.EstadoReserva estado);
 
-    @Query(value = "SELECT count(*) FROM reserva WHERE CAST(estado AS text) = :estado", nativeQuery = true)
-    long countByEstadoNative(@Param("estado") String estado);
-
-    @Query(value = "SELECT centro_id, COUNT(*) FROM reserva GROUP BY centro_id", nativeQuery = true)
-    List<Object[]> countReservasGroupByCentroId();
+    @Query("SELECT new cl.rednorte.ms_portal.dto.CentroMetricaDTO(c.nombreSucursal, COUNT(r)) " +
+           "FROM CentroMedicoView c LEFT JOIN ReservaView r ON r.centro.id = c.id " +
+           "GROUP BY c.nombreSucursal")
+    List<CentroMetricaDTO> obtenerMetricasPorCentro();
 }

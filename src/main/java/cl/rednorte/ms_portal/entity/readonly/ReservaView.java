@@ -1,66 +1,50 @@
 package cl.rednorte.ms_portal.entity.readonly;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import lombok.Getter;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.Immutable;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
-
 @Entity
+@Table(name = "reserva")
 @Immutable
 @Getter
-@Table(name = "reserva")
 public class ReservaView {
-
     @Id
-    @Column(name = "id", insertable = false, updatable = false)
     private Long id;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "paciente_id", insertable = false, updatable = false)
-    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    
+    @ManyToOne
+    @JoinColumn(name = "paciente_id")
     private UsuarioView paciente;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "medico_id", insertable = false, updatable = false)
-    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    @ManyToOne
+    @JoinColumn(name = "medico_id")
     private UsuarioView medico;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "centro_id", insertable = false, updatable = false)
-    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    @ManyToOne
+    @JoinColumn(name = "centro_id")
     private CentroMedicoView centro;
 
-    @Column(name = "fecha_hora", insertable = false, updatable = false)
     private LocalDateTime fechaHora;
-
+    
     @Enumerated(EnumType.STRING)
-    @Column(name = "origen", insertable = false, updatable = false, columnDefinition = "origen_reserva")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private EstadoReserva estado;
+    
+    @Enumerated(EnumType.STRING)
     private OrigenReserva origen;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado", insertable = false, updatable = false, columnDefinition = "estado_reserva")
-    private EstadoReserva estado;
-
-    protected ReservaView() {
+    public enum EstadoReserva { 
+    VIGENTE, 
+    CONFIRMADA, 
+    ATENDIDO, 
+    NO_ASISTE, 
+    CANCELADA, 
+    PENDIENTE_CANCELACION_ADMIN 
     }
-
-    public enum OrigenReserva {
-        WEB, PRESENCIAL
-    }
-
-    public enum EstadoReserva {
-        VIGENTE, CANCELADA
-    }
+    
+    public enum OrigenReserva { WEB, PRESENCIAL}
 }
