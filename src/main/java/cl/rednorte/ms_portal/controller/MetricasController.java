@@ -14,18 +14,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/portal/metricas")
 public class MetricasController {
-    @Autowired private MetricasService service;
+    @Autowired
+    private MetricasService service;
 
     @GetMapping("/resumen")
-    public ResponseEntity<DashboardResumenDTO> getResumen() { return ResponseEntity.ok(service.obtenerResumenGlobal()); }
+    public ResponseEntity<DashboardResumenDTO> getResumen() {
+        return ResponseEntity.ok(service.obtenerResumenGlobal());
+    }
 
     @GetMapping("/centros")
-    public ResponseEntity<List<CentroMetricaDTO>> getMetricasCentros() { return ResponseEntity.ok(service.obtenerMetricasPorCentro()); }
+    public ResponseEntity<List<CentroMetricaDTO>> getMetricasCentros() {
+        return ResponseEntity.ok(service.obtenerMetricasPorCentro());
+    }
 
-    /**
-     * Endpoint para dashboard de secretaria.
-     * Si no se proporciona fecha, usa la fecha de hoy por defecto.
-     */
     @GetMapping("/centro/{centroId}/dashboard-secretaria")
     public ResponseEntity<DashboardSecretariaDTO> getDashboardSecretaria(
             @PathVariable Long centroId,
