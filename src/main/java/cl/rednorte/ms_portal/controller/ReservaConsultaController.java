@@ -10,27 +10,27 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/portal/reservas")
 public class ReservaConsultaController {
-    @Autowired private ReservaConsultaService service;
+    @Autowired
+    private ReservaConsultaService service;
 
     @GetMapping("/paciente/{idAuth}")
-    public List<ReservaView> porPaciente(@PathVariable String idAuth) { return service.porPacienteIdAuth(idAuth); }
+    public List<ReservaView> porPaciente(@PathVariable String idAuth) {
+        return service.porPacienteIdAuth(idAuth);
+    }
 
-    // ✅ PAGINACIÓN: Se agregaron parámetros page y size con valores por defecto
     @GetMapping("/centro/{centroId}")
     public Page<ReservaView> porCentro(
-        @PathVariable Long centroId,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size
-    ) {
+            @PathVariable Long centroId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         return service.porCentro(centroId, page, size);
     }
 
     @GetMapping("/medico/{medicoId}")
     public Page<ReservaView> porMedico(
-        @PathVariable Long medicoId,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size
-    ) {
+            @PathVariable Long medicoId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         return service.porMedico(medicoId, page, size);
     }
 }
