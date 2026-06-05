@@ -8,7 +8,14 @@ import java.util.List;
 
 @Service
 public class HistorialCitaConsultaService {
-    @Autowired private HistorialCitaViewRepository repository;
+    @Autowired
+    private HistorialCitaViewRepository repository;
 
-    public List<HistorialCitaView> porPaciente(Long pacienteId) { return repository.findByPacienteId(pacienteId); }
+    public List<HistorialCitaView> porPaciente(Long pacienteId) {
+        return repository.findByPacienteId(pacienteId);
+    }
+
+    public java.util.Optional<HistorialCitaView> porReserva(Long reservaId) {
+        return repository.findByReservaId(reservaId);
+    }
 }

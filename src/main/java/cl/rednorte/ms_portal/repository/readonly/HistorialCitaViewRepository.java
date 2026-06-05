@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface HistorialCitaViewRepository extends JpaRepository<HistorialCitaView, Long> {
     List<HistorialCitaView> findByPacienteId(Long pacienteId);
+    java.util.Optional<HistorialCitaView> findByReservaId(Long reservaId);
 }
