@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class HistorialCitaView {
     @Id
     private Long id;
-    
+
     @ManyToOne
     @JoinColumn(name = "paciente_id")
     private UsuarioView paciente;
@@ -24,4 +24,7 @@ public class HistorialCitaView {
     private LocalDateTime fechaAtencion;
     private String observaciones;
     private String procedimientoRealizado;
+
+    @Column(name = "reserva_id")
+    private Long reservaId;
 }
