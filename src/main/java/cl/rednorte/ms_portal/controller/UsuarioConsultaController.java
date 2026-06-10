@@ -15,6 +15,7 @@ public class UsuarioConsultaController {
     @GetMapping public List<UsuarioView> listar() { return service.listarTodos(); }
     @GetMapping("/staff") public List<UsuarioView> listarStaff() { return service.listarPersonalStaff(); }
     @GetMapping("/admins-disponibles") public List<UsuarioView> adminsDisponibles() { return service.listarAdministradoresDisponibles(); }
+    @GetMapping("/candidatos-staff") public List<UsuarioView> candidatosStaff() { return service.listarCandidatosParaStaff(); }
     @GetMapping("/{id}") public ResponseEntity<UsuarioView> getById(@PathVariable Long id) { return ResponseEntity.ok(service.obtenerPorId(id)); }
     @GetMapping("/perfil/{idAuth}") public ResponseEntity<UsuarioView> getPerfil(@PathVariable String idAuth) { return ResponseEntity.ok(service.obtenerPorIdAuth(idAuth)); }
     @GetMapping("/rut/{rut}") public ResponseEntity<UsuarioView> getPorRut(@PathVariable String rut) {
