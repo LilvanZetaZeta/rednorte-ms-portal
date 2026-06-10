@@ -2,12 +2,16 @@ package cl.rednorte.ms_portal.entity.readonly;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Immutable;
-import lombok.Getter;
+import lombok.*;
 
 @Entity
 @Table(name = "perfil_paciente")
 @Immutable
 @Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PerfilPacienteView {
     @Id
     private Long id;
