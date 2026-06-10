@@ -18,4 +18,5 @@ public class UsuarioConsultaService {
     public List<UsuarioView> buscarMedicosPorEspecialidad(String especialidad) { return repository.findByRolAndEspecialidades_NombreIgnoreCase(UsuarioView.RolUsuario.MEDICO, especialidad); }
     public List<UsuarioView> listarPersonalStaff() { return repository.findByRolNot(UsuarioView.RolUsuario.PACIENTE); }
     public List<UsuarioView> listarAdministradoresDisponibles() { return repository.findByRolAndCentroMedicoIsNull(UsuarioView.RolUsuario.ADMINISTRATIVO); }
+    public List<UsuarioView> listarCandidatosParaStaff() {return repository.findByRolAndCentroMedicoIsNull(UsuarioView.RolUsuario.PACIENTE);}
 }
