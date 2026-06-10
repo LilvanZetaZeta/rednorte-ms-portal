@@ -5,13 +5,17 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import lombok.Getter;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reserva")
 @Immutable
 @Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReservaView {
     @Id
     private Long id;

@@ -4,12 +4,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import lombok.Getter;
+import lombok.*;
 
 @Entity
 @Table(name = "centro_medico")
 @Immutable
 @Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CentroMedicoView {
     @Id
     private Long id;

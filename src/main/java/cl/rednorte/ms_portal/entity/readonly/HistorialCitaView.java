@@ -2,13 +2,17 @@ package cl.rednorte.ms_portal.entity.readonly;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Immutable;
-import lombok.Getter;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "historial_cita")
 @Immutable
 @Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class HistorialCitaView {
     @Id
     private Long id;
