@@ -1,19 +1,12 @@
 package cl.rednorte.ms_portal.repository.readonly;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.repository.Repository;
-import org.springframework.stereotype.Component;
-
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import cl.rednorte.ms_portal.entity.readonly.CentroMedicoView;
+import java.util.List;
 
-@Component
-public interface CentroMedicoViewRepository extends Repository<CentroMedicoView, Long> {
-
-    Optional<CentroMedicoView> findById(Long id);
-
-    List<CentroMedicoView> findAll();
-
-    long count();
+@Repository
+public interface CentroMedicoViewRepository extends JpaRepository<CentroMedicoView, Long> {
+    List<CentroMedicoView> findByRegionAndComunaIgnoreCase(String region, String comuna);
+    List<CentroMedicoView> findByComunaIgnoreCase(String comuna);
 }

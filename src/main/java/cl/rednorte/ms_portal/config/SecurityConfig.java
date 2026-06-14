@@ -11,16 +11,12 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Apagamos CSRF porque las peticiones vienen del Gateway
             .csrf(csrf -> csrf.disable())
-
-            // 2. Permitimos todas las peticiones
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll()
             );
-
         return http.build();
     }
 }

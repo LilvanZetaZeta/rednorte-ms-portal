@@ -1,61 +1,85 @@
 package cl.rednorte.ms_portal.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import cl.rednorte.ms_portal.dto.CentroMetricaDTO;
 import cl.rednorte.ms_portal.dto.DashboardResumenDTO;
-import cl.rednorte.ms_portal.entity.readonly.CentroMedicoView;
-import cl.rednorte.ms_portal.entity.readonly.ReservaView;
-import cl.rednorte.ms_portal.entity.readonly.UsuarioView;
-import cl.rednorte.ms_portal.repository.readonly.CentroMedicoViewRepository;
-import cl.rednorte.ms_portal.repository.readonly.EspecialidadViewRepository;
-import cl.rednorte.ms_portal.repository.readonly.ReservaViewRepository;
-import cl.rednorte.ms_portal.repository.readonly.UsuarioViewRepository;
+import cl.rednorte.ms_portal.dto.DashboardSecretariaDTO;
+import cl.rednorte.ms_portal.entity.readonly.ReservaView.EstadoReserva;
+import cl.rednorte.ms_portal.entity.readonly.UsuarioView.RolUsuario;
+import cl.rednorte.ms_portal.repository.readonly.*;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
 public class MetricasService {
+    @Autowired private ReservaViewRepository reservaRepo;
+    @Autowired private UsuarioViewRepository usuarioRepo;
+    @Autowired private CentroMedicoViewRepository centroRepo;
+    @Autowired private EspecialidadViewRepository especialidadRepo;
 
-    @Autowired
-    private ReservaViewRepository reservaRepo;
-    @Autowired
-    private UsuarioViewRepository usuarioRepo;
-    @Autowired
-    private CentroMedicoViewRepository centroRepo;
-    @Autowired
-    private EspecialidadViewRepository especialidadRepo;
-
-    public DashboardResumenDTO obtenerResumen() {
-        return new DashboardResumenDTO(
-                reservaRepo.count(),
-                reservaRepo.countByEstadoNative(ReservaView.EstadoReserva.VIGENTE.name()),
-                reservaRepo.countByEstadoNative(ReservaView.EstadoReserva.CANCELADA.name()),
-                usuarioRepo.countByRolNative(UsuarioView.RolUsuario.PACIENTE.name()),
-                usuarioRepo.countByRolNative(UsuarioView.RolUsuario.MEDICO.name()),
-                centroRepo.count(),
-                especialidadRepo.count());
+    public DashboardResumenDTO obtenerResumenGlobal() {
+        return DashboardResumenDTO.builder()
+            .totalReservas(reservaRepo.count())
+            .reservasVigentes(reservaRepo.countByEstado(EstadoReserva.VIGENTE))
+            .reservasCanceladas(reservaRepo.countByEstado(EstadoReserva.CANCELADA))
+            .totalPacientes(usuarioRepo.countByRol(RolUsuario.PACIENTE))
+            .totalMedicos(usuarioRepo.countByRol(RolUsuario.MEDICO))
+            .totalCentros(centroRepo.count())
+            .totalEspecialidades(especialidadRepo.count())
+            .build();
     }
 
-    public List<CentroMetricaDTO> obtenerMetricasPorCentro() {
-        List<CentroMedicoView> centros = centroRepo.findAll();
+    public List<CentroMetricaDTO> obtenerMetricasPorCentro() { 
+        return reservaRepo.obtenerMetricasPorCentro(); 
+    }
 
-        List<Object[]> conteos = reservaRepo.countReservasGroupByCentroId();
-
-        Map<Long, Long> conteoPorCentroId = conteos.stream()
-                .collect(Collectors.toMap(
-                        row -> ((Number) row[0]).longValue(),
-                        row -> ((Number) row[1]).longValue()));
-
-        return centros.stream()
-                .map(c -> new CentroMetricaDTO(
-                        c.getNombreSucursal(),
-                        conteoPorCentroId.getOrDefault(c.getId(), 0L)))
-                .collect(Collectors.toList());
+    public DashboardSecretariaDTO obtenerDashboardSecretaria(Long centroId, LocalDate fecha) {
+        try {
+            Object[] conteos = reservaRepo.obtenerConteosDashboardSecretaria(centroId, fecha);
+            Long totalReservasHoy = 0L;
+            Long citasVigentes = 0L;
+            Long citasConfirmadas = 0L;
+            Long pendientesCheckin = 0L;
+            Long citasCanceladasHoy = 0L;
+            
+            if (conteos != null && conteos.length > 0 && conteos[0] != null) {
+                totalReservasHoy = ((Number) conteos[0]).longValue();
+            }
+            if (conteos != null && conteos.length > 1 && conteos[1] != null) {
+                citasVigentes = ((Number) conteos[1]).longValue();
+            }
+            if (conteos != null && conteos.length > 2 && conteos[2] != null) {
+                citasConfirmadas = ((Number) conteos[2]).longValue();
+            }
+            if (conteos != null && conteos.length > 3 && conteos[3] != null) {
+                pendientesCheckin = ((Number) conteos[3]).longValue();
+            }
+            if (conteos != null && conteos.length > 4 && conteos[4] != null) {
+                citasCanceladasHoy = ((Number) conteos[4]).longValue();
+            }
+            
+            Long totalMedicosCentro = reservaRepo.countMedicosByCentroId(centroId);
+            if (totalMedicosCentro == null) totalMedicosCentro = 0L;
+            
+            return DashboardSecretariaDTO.builder()
+                .totalReservasHoy(totalReservasHoy)
+                .citasVigentes(citasVigentes)
+                .citasConfirmadas(citasConfirmadas)
+                .pendientesCheckin(pendientesCheckin)
+                .citasCanceladasHoy(citasCanceladasHoy)
+                .totalMedicosCentro(totalMedicosCentro)
+                .build();
+        } catch (Exception e) {
+            System.err.println("Error dashboard: " + e.getMessage());
+            return DashboardSecretariaDTO.builder()
+                .totalReservasHoy(0L)
+                .citasVigentes(0L)
+                .citasConfirmadas(0L)
+                .pendientesCheckin(0L)
+                .citasCanceladasHoy(0L)
+                .totalMedicosCentro(0L)
+                .build();
+        }
     }
 }

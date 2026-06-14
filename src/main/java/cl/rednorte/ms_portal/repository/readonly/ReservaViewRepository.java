@@ -1,37 +1,52 @@
 package cl.rednorte.ms_portal.repository.readonly;
 
-import java.util.List;
-import java.util.Optional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Repository;
 import cl.rednorte.ms_portal.entity.readonly.ReservaView;
+import cl.rednorte.ms_portal.dto.CentroMetricaDTO;
+import java.time.LocalDate;
+import java.util.List;
 
-@Component
-public interface ReservaViewRepository extends Repository<ReservaView, Long> {
-
-    Optional<ReservaView> findById(Long id);
-
-    List<ReservaView> findAll();
-
-    long count();
-
-    List<ReservaView> findByPacienteId(Long pacienteId);
-
+@Repository
+public interface ReservaViewRepository extends JpaRepository<ReservaView, Long> {
     List<ReservaView> findByPaciente_IdAuth(String idAuth);
 
-    List<ReservaView> findByMedicoId(Long medicoId);
+    Page<ReservaView> findByCentroId(Long centroId, Pageable pageable);
 
-    List<ReservaView> findByMedico_IdAuth(String idAuth);
+    Page<ReservaView> findByMedicoId(Long medicoId, Pageable pageable);
 
-    List<ReservaView> findByCentroId(Long centroId);
+    long countByEstado(ReservaView.EstadoReserva estado);
 
-    @Query(value = "SELECT count(*) FROM reserva WHERE CAST(estado AS text) = :estado", nativeQuery = true)
-    long countByEstadoNative(@Param("estado") String estado);
+    @Query("SELECT new cl.rednorte.ms_portal.dto.CentroMetricaDTO(c.nombreSucursal, COUNT(r)) " +
+            "FROM CentroMedicoView c LEFT JOIN ReservaView r ON r.centro.id = c.id " +
+            "GROUP BY c.nombreSucursal")
+    List<CentroMetricaDTO> obtenerMetricasPorCentro();
 
-    @Query(value = "SELECT centro_id, COUNT(*) FROM reserva GROUP BY centro_id", nativeQuery = true)
-    List<Object[]> countReservasGroupByCentroId();
+    @Query("""
+                SELECT
+                    COUNT(r),
+                    SUM(CASE WHEN r.estado = cl.rednorte.ms_portal.entity.readonly.ReservaView.EstadoReserva.VIGENTE THEN 1 ELSE 0 END),
+                    SUM(CASE WHEN r.estado = cl.rednorte.ms_portal.entity.readonly.ReservaView.EstadoReserva.CONFIRMADA THEN 1 ELSE 0 END),
+                    SUM(CASE WHEN r.estado IN (cl.rednorte.ms_portal.entity.readonly.ReservaView.EstadoReserva.VIGENTE, cl.rednorte.ms_portal.entity.readonly.ReservaView.EstadoReserva.CONFIRMADA) THEN 1 ELSE 0 END),
+                    SUM(CASE WHEN r.estado = cl.rednorte.ms_portal.entity.readonly.ReservaView.EstadoReserva.CANCELADA THEN 1 ELSE 0 END)
+                FROM ReservaView r
+                WHERE r.centro.id = :centroId
+                  AND FUNCTION('date', r.fechaHora) = :fecha
+            """)
+    Object[] obtenerConteosDashboardSecretaria(
+            @Param("centroId") Long centroId,
+            @Param("fecha") LocalDate fecha);
+
+    // Contar médicos por centro
+    @Query("""
+                SELECT COUNT(u)
+                FROM UsuarioView u
+                WHERE u.centroMedico.id = :centroId
+                  AND u.rol = 'MEDICO'
+            """)
+    Long countMedicosByCentroId(@Param("centroId") Long centroId);
 }
