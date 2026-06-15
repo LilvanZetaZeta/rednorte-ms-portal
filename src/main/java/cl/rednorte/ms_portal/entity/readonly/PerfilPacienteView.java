@@ -23,5 +23,7 @@ public class PerfilPacienteView {
     private String idAuth;
     
     private String prevision;
+
+    @Column(name = "telefono_contacto")
     private String telefonoContacto;
 }
