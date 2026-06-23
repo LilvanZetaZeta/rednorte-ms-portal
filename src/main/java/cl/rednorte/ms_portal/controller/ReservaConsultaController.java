@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import cl.rednorte.ms_portal.entity.readonly.ReservaView;
 import cl.rednorte.ms_portal.service.ReservaConsultaService;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -32,5 +33,12 @@ public class ReservaConsultaController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         return service.porMedico(medicoId, page, size);
+    }
+
+    @GetMapping("/slots-disponibles")
+    public List<String> slotsDisponibles(
+            @RequestParam Long medicoId,
+            @RequestParam String fecha) {
+        return service.obtenerSlotsDisponibles(medicoId, LocalDate.parse(fecha));
     }
 }

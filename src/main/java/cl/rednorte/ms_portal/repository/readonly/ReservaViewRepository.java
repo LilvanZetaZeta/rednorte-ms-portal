@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import cl.rednorte.ms_portal.entity.readonly.ReservaView;
 import cl.rednorte.ms_portal.dto.CentroMetricaDTO;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -41,7 +43,6 @@ public interface ReservaViewRepository extends JpaRepository<ReservaView, Long> 
             @Param("centroId") Long centroId,
             @Param("fecha") LocalDate fecha);
 
-    // Contar médicos por centro
     @Query("""
                 SELECT COUNT(u)
                 FROM UsuarioView u
@@ -49,4 +50,14 @@ public interface ReservaViewRepository extends JpaRepository<ReservaView, Long> 
                   AND u.rol = 'MEDICO'
             """)
     Long countMedicosByCentroId(@Param("centroId") Long centroId);
+
+    @Query(value = """
+            SELECT fecha_hora FROM reserva
+            WHERE medico_id = :medicoId
+              AND DATE(fecha_hora) = CAST(:fecha AS date)
+              AND CAST(estado AS text) NOT IN ('CANCELADA', 'NO_ASISTE')
+        """, nativeQuery = true)
+    List<Timestamp> findHorasOcupadasByMedicoAndFecha(
+            @Param("medicoId") Long medicoId,
+            @Param("fecha") String fecha);
 }
